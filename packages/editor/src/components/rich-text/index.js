@@ -844,7 +844,7 @@ export class RichText extends Component {
 			keepPlaceholderOnFocus = false,
 			isSelected,
 			autocompleters,
-			onTagChange,
+			onTagNameChange,
 		} = this.props;
 
 		const MultilineTag = this.multilineTag;
@@ -866,7 +866,7 @@ export class RichText extends Component {
 					<BlockFormatControls>
 						<ListToolbar
 							editor={ this.editor }
-							onTagChange={ onTagChange }
+							onTagNameChange={ onTagNameChange }
 							tagName={ Tagname }
 						/>
 					</BlockFormatControls>
