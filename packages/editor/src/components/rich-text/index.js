@@ -56,6 +56,7 @@ import TinyMCE, { TINYMCE_ZWSP } from './tinymce';
 import { pickAriaProps } from './aria';
 import { getPatterns } from './patterns';
 import { withBlockEditContext } from '../block-edit/context';
+import { ListToolbar } from './list-toolbar';
 
 /**
  * Browser dependencies
@@ -843,6 +844,7 @@ export class RichText extends Component {
 			keepPlaceholderOnFocus = false,
 			isSelected,
 			autocompleters,
+			onTagChange,
 		} = this.props;
 
 		const MultilineTag = this.multilineTag;
@@ -860,6 +862,15 @@ export class RichText extends Component {
 			<div className={ classes }
 				onFocus={ this.setFocusedElement }
 			>
+				{ isSelected && this.multilineTag === 'li' && (
+					<BlockFormatControls>
+						<ListToolbar
+							editor={ this.editor }
+							onTagChange={ onTagChange }
+							tagName={ Tagname }
+						/>
+					</BlockFormatControls>
+				) }
 				{ isSelected && ! inlineToolbar && (
 					<BlockFormatControls>
 						<FormatToolbar controls={ formattingControls } />
