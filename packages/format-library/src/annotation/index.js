@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
 
 const name = 'core/annotation';
 
@@ -15,6 +14,6 @@ export const annotation = {
 		className: 'class',
 	},
 	edit() {
-		return <Fragment />;
+		return null;
 	},
 };
