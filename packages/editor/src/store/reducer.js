@@ -1178,7 +1178,7 @@ export function annotations( state = { all: [], byBlockClientId: {} }, action ) 
 			const newAnnotation = {
 				id: action.id,
 				blockClientId,
-				blockAttribute: action.blockAttribute,
+				richTextIdentifier: action.richTextIdentifier,
 				source: action.source,
 				selector: action.selector,
 				range: action.range,
