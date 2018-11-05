@@ -802,6 +802,7 @@ export function unlockPostSaving( lockName ) {
  *
  * @param {Object} annotation         The annotation to add.
  * @param {string} blockClientId      The blockClientId to add the annotation to.
+ * @param {string} blockAttribute     The attribute of the block to add the annotation to.
  * @param {Object} range              The range at which to apply this annotaiton.
  * @param {string} range.startXPath   The XPath where the annotation should start.
  * @param {number} range.startOffset  The offset where the annotation should start.
@@ -814,11 +815,12 @@ export function unlockPostSaving( lockName ) {
  *
  * @return {Object} Action object.
  */
-export function addAnnotation( { blockClientId, range = null, selector = 'range', source = 'default', id = uuid() } ) {
+export function addAnnotation( { blockClientId, blockAttribute = null, range = null, selector = 'range', source = 'default', id = uuid() } ) {
 	const action = {
 		type: 'ANNOTATION_ADD',
 		id,
 		blockClientId,
+		blockAttribute,
 		source,
 		selector,
 	};

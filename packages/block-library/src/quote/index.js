@@ -17,15 +17,18 @@ import {
 import { join, split, create, toHTMLString } from '@wordpress/rich-text';
 import { G, Path, SVG } from '@wordpress/components';
 
+const ATTRIBUTE_QUOTE = 'value';
+const ATTRIBUTE_CITATION = 'citation';
+
 const blockAttributes = {
-	value: {
+	[ ATTRIBUTE_QUOTE ]: {
 		type: 'string',
 		source: 'html',
 		selector: 'blockquote',
 		multiline: 'p',
 		default: '',
 	},
-	citation: {
+	[ ATTRIBUTE_CITATION ]: {
 		type: 'string',
 		source: 'html',
 		selector: 'cite',
@@ -219,6 +222,7 @@ export const settings = {
 							// translators: placeholder text used for the quote
 							__( 'Write quote…' )
 						}
+						identifier={ ATTRIBUTE_QUOTE }
 					/>
 					{ ( ! RichText.isEmpty( citation ) || isSelected ) && (
 						<RichText
@@ -233,6 +237,7 @@ export const settings = {
 								__( 'Write citation…' )
 							}
 							className="wp-block-quote__citation"
+							identifier={ ATTRIBUTE_CITATION }
 						/>
 					) }
 				</blockquote>
