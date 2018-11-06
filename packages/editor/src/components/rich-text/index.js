@@ -751,29 +751,26 @@ export class RichText extends Component {
 	 * @return {Object} A record with the annotations applied.
 	 */
 	applyAnnotations( record, annotations = [] ) {
-		annotations
-			.filter( ( annotation ) => {
-				return isNumber( annotation.start ) &&
-					isNumber( annotation.end ) &&
-					annotation.start <= annotation.end &&
-					annotation.start <= record.text.length &&
-					annotation.end <= record.text.length;
-			} )
-			.map( ( annotation ) => {
-				return {
-					start: annotation.start,
-					end: annotation.end,
-					className: 'annotation-text-' + annotation.source,
-				};
-			} )
-			.forEach( ( { start, end, className } ) => {
-				record = applyFormat(
-					record,
-					{ type: 'core/annotation', attributes: { className } },
-					start,
-					end
-				);
-			} );
+		annotations.forEach( ( annotation ) => {
+			const isValidAnnotation = isNumber( annotation.start ) &&
+				isNumber( annotation.end ) &&
+				annotation.start <= annotation.end &&
+				annotation.start <= record.text.length &&
+				annotation.end <= record.text.length;
+
+			if ( ! isValidAnnotation ) {
+				return;
+			}
+
+			const className = 'annotation-text-' + annotation.source;
+
+			record = applyFormat(
+				record,
+				{ type: 'core/annotation', attributes: { className } },
+				annotation.start,
+				annotation.end
+			);
+		} );
 
 		return record;
 	}
