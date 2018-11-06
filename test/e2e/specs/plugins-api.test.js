@@ -7,9 +7,11 @@ import {
 	openDocumentSettingsSidebar,
 	newPost,
 	openPublishPanel,
-	publishPost,
+	publishPost, observeFocusLoss,
 } from '../support/utils';
 import { activatePlugin, deactivatePlugin } from '../support/plugins';
+
+const ANNOTATIONS_SELECTOR = '.annotation-text-e2e-tests';
 
 describe( 'Using Plugins API', () => {
 	beforeAll( async () => {
@@ -73,6 +75,30 @@ describe( 'Using Plugins API', () => {
 
 			const pluginSidebarClosed = await page.$( '.edit-post-sidebar' );
 			expect( pluginSidebarClosed ).toBeNull();
+		} );
+	} );
+
+	describe( 'Annotations', () => {
+		beforeAll( () => {
+			observeFocusLoss();
+		} );
+
+		it( 'Allows a block to be anotated', async () => {
+			await newPost();
+
+			await page.keyboard.type( 'Title' + '\n' + 'Paragraph to annotate' );
+			await clickOnMoreMenuItem( 'Sidebar title plugin' );
+
+			let annotations = await page.$$( ANNOTATIONS_SELECTOR );
+			expect( annotations ).toHaveLength( 0 );
+
+			// Click add annotation button.
+			const addAnnotationButton = ( await page.$x( "//button[contains(text(), 'Add annotation')]" ) )[ 0 ];
+			// console.log( addAnnotationButton );
+			await addAnnotationButton.click();
+
+			annotations = await page.$$( ANNOTATIONS_SELECTOR );
+			expect( annotations ).toHaveLength( 1 );
 		} );
 	} );
 } );
