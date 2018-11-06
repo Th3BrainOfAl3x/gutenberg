@@ -424,7 +424,6 @@ export class BlockListBlock extends Component {
 						'is-selected': shouldAppearSelected,
 						'is-multi-selected': isPartOfMultiSelection,
 						'is-hovered': shouldAppearHovered,
-						'is-annotated': annotations.length !== 0,
 						'is-reusable': isReusableBlock( blockType ),
 						'is-dragging': dragging,
 						'is-typing': isTypingWithinBlock,
