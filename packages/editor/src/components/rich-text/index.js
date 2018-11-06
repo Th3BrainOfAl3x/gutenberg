@@ -222,7 +222,7 @@ export class RichText extends Component {
 	 * @return {Object} The current record (value and selection).
 	 */
 	getRecord() {
-		const { formats, text } = this.formatToValue( this.props.value );
+		const { formats, text } = this.formatToValue( this.props.value, this.props.annotations );
 		const { start, end } = this.state;
 
 		return { formats, text, start, end };
@@ -258,7 +258,7 @@ export class RichText extends Component {
 	}
 
 	isEmpty() {
-		return isEmpty( this.formatToValue( this.props.value ) );
+		return isEmpty( this.formatToValue( this.props.value, this.props.annotations ) );
 	}
 
 	/**
@@ -799,10 +799,10 @@ export class RichText extends Component {
 				return;
 			}
 
-			const record = this.applyAnnotations( this.formatToValue( value ), annotations );
+			const record = this.formatToValue( value, annotations );
 
 			if ( isSelected ) {
-				const prevRecord = this.formatToValue( prevProps.value );
+				const prevRecord = this.formatToValue( prevProps.value, prevProps.annotations );
 				const length = getTextContent( prevRecord ).length;
 				record.start = length;
 				record.end = length;
@@ -816,8 +816,8 @@ export class RichText extends Component {
 		// an empty paragraph into another, then also set the selection to the
 		// end.
 		if ( isSelected && ! prevProps.isSelected && ! this.isActive() ) {
-			const record = this.formatToValue( value );
-			const prevRecord = this.formatToValue( prevProps.value );
+			const record = this.formatToValue( value, annotations );
+			const prevRecord = this.formatToValue( prevProps.value, prevProps.annotations );
 			const length = getTextContent( prevRecord ).length;
 			record.start = length;
 			record.end = length;
@@ -825,10 +825,12 @@ export class RichText extends Component {
 		}
 	}
 
-	formatToValue( value ) {
+	formatToValue( value, annotations = [] ) {
+		let record;
+
 		// Handle deprecated `children` and `node` sources.
 		if ( Array.isArray( value ) ) {
-			return create( {
+			record = create( {
 				html: children.toHTML( value ),
 				multilineTag: this.multilineTag,
 				multilineWrapperTags: this.multilineWrapperTags,
@@ -836,7 +838,7 @@ export class RichText extends Component {
 		}
 
 		if ( this.props.format === 'string' ) {
-			return create( {
+			record = create( {
 				html: value,
 				multilineTag: this.multilineTag,
 				multilineWrapperTags: this.multilineWrapperTags,
@@ -846,10 +848,10 @@ export class RichText extends Component {
 		// Guard for blocks passing `null` in onSplit callbacks. May be removed
 		// if onSplit is revised to not pass a `null` value.
 		if ( value === null ) {
-			return create();
+			record = create();
 		}
 
-		return value;
+		return this.applyAnnotations( record, annotations );
 	}
 
 	valueToFormat( { formats, text } ) {
@@ -953,7 +955,7 @@ export class RichText extends Component {
 									{ MultilineTag ? <MultilineTag>{ placeholder }</MultilineTag> : placeholder }
 								</Tagname>
 							}
-							{ isSelected && <FormatEdit value={ this.applyAnnotations( record, this.props.annotations ) } onChange={ this.onChange } /> }
+							{ isSelected && <FormatEdit value={ record } onChange={ this.onChange } /> }
 						</Fragment>
 					) }
 				</Autocomplete>
