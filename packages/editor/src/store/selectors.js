@@ -2119,6 +2119,21 @@ export function isPublishSidebarEnabled( state ) {
 }
 
 /**
+ * Returns the properties for the currently selected text inside the active
+ * RichText.
+ *
+ * Can be used together with the addAnnotation action to annotate the selected
+ * text.
+ *
+ * @param {Object} state Editor state.
+ *
+ * @return {Object} RichText information about the currently selected text.
+ */
+export function getCurrentRichTextSelection( state ) {
+	return state.blockSelection.richText;
+}
+
+/**
  * Returns the annotations for a specific client ID.
  *
  * @param {Object} state Editor state.
