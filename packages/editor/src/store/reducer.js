@@ -15,6 +15,7 @@ import {
 	isEqual,
 	overSome,
 	get,
+	isNumber,
 } from 'lodash';
 
 /**
@@ -1164,6 +1165,18 @@ function filterWithReference( collection, predicate ) {
 }
 
 /**
+ * Verifies whether the given annotations is a valid annotation.
+ *
+ * @param {Object} annotation The annotation to verify.
+ * @return {boolean} Whether the given annotation is valid.
+ */
+function isValidAnnotationRange( annotation ) {
+	return isNumber( annotation.start ) &&
+		isNumber( annotation.end ) &&
+		annotation.start <= annotation.end;
+}
+
+/**
  * Reducer managing annotations.
  *
  * @param {Array} state The annotations currently shown in the editor.
@@ -1183,6 +1196,10 @@ export function annotations( state = { all: [], byBlockClientId: {} }, action ) 
 				selector: action.selector,
 				range: action.range,
 			};
+
+			if ( newAnnotation.selector === 'range' && ! isValidAnnotationRange( newAnnotation.range ) ) {
+				return state;
+			}
 
 			const previousAnnotationsForBlock = state.byBlockClientId[ blockClientId ] || [];
 

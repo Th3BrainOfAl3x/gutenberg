@@ -2342,6 +2342,8 @@ describe( 'state', () => {
 	} );
 
 	describe( 'annotations', () => {
+		const initialState = { all: [], byBlockClientId: {} };
+
 		it( 'returns all annotations and annotation IDs per block', () => {
 			const state = annotations( undefined, {} );
 
@@ -2466,6 +2468,38 @@ describe( 'state', () => {
 					blockClientId: [ 'annotationId' ],
 				},
 			} );
+		} );
+
+		it( 'rejects invalid annotations', () => {
+			let state = annotations( undefined, {
+				type: 'ANNOTATION_ADD',
+				source: 'default',
+				selector: 'range',
+				range: {
+					start: 5,
+					end: 4,
+				},
+			} );
+			state = annotations( state, {
+				type: 'ANNOTATION_ADD',
+				source: 'default',
+				selector: 'range',
+				range: {
+					start: 'not a number',
+					end: 100,
+				},
+			} );
+			state = annotations( state, {
+				type: 'ANNOTATION_ADD',
+				source: 'default',
+				selector: 'range',
+				range: {
+					start: 100,
+					end: 'not a number',
+				},
+			} );
+
+			expect( state ).toEqual( initialState );
 		} );
 	} );
 } );

@@ -8,7 +8,6 @@ import {
 	isNil,
 	isEqual,
 	omit,
-	isNumber,
 } from 'lodash';
 import memize from 'memize';
 
@@ -752,14 +751,14 @@ export class RichText extends Component {
 	 */
 	applyAnnotations( record, annotations = [] ) {
 		annotations.forEach( ( annotation ) => {
-			const isValidAnnotation = isNumber( annotation.start ) &&
-				isNumber( annotation.end ) &&
-				annotation.start <= annotation.end &&
-				annotation.start <= record.text.length &&
-				annotation.end <= record.text.length;
+			let { start, end } = annotation;
 
-			if ( ! isValidAnnotation ) {
-				return;
+			if ( start > record.text.length ) {
+				start = record.text.length;
+			}
+
+			if ( end > record.text.length ) {
+				end = record.text.length;
 			}
 
 			const className = 'annotation-text-' + annotation.source;
@@ -767,8 +766,8 @@ export class RichText extends Component {
 			record = applyFormat(
 				record,
 				{ type: 'core/annotation', attributes: { className } },
-				annotation.start,
-				annotation.end
+				start,
+				end
 			);
 		} );
 
