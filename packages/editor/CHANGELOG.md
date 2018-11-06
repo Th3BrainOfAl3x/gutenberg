@@ -1,3 +1,9 @@
+## 6.1.2 (Unreleased)
+
+### Polish
+
+- Reactive block styles.
+
 ## 6.1.1 (2018-11-03)
 
 ### Polish
