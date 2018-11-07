@@ -42,7 +42,6 @@ import {
 	getSelectionEnd,
 	remove,
 	isCollapsed,
-	removeFormat,
 } from '@wordpress/rich-text';
 import { decodeEntities } from '@wordpress/html-entities';
 
@@ -57,6 +56,7 @@ import TinyMCE, { TINYMCE_ZWSP } from './tinymce';
 import { pickAriaProps } from './aria';
 import { getPatterns } from './patterns';
 import { withBlockEditContext } from '../block-edit/context';
+import { applyAnnotations, removeAnnotations } from './annotations';
 
 /**
  * Browser dependencies
@@ -740,48 +740,6 @@ export class RichText extends Component {
 		}
 	}
 
-	/**
-	 * Applies given annotations to the given record.
-	 *
-	 * @param {Object} record The record to apply annotations to.
-	 * @param {Array} annotations The annotation to apply.
-	 * @return {Object} A record with the annotations applied.
-	 */
-	applyAnnotations( record, annotations = [] ) {
-		annotations.forEach( ( annotation ) => {
-			let { start, end } = annotation;
-
-			if ( start > record.text.length ) {
-				start = record.text.length;
-			}
-
-			if ( end > record.text.length ) {
-				end = record.text.length;
-			}
-
-			const className = 'annotation-text-' + annotation.source;
-
-			record = applyFormat(
-				record,
-				{ type: 'core/annotation', attributes: { className } },
-				start,
-				end
-			);
-		} );
-
-		return record;
-	}
-
-	/**
-	 * Removes annotations from the given record.
-	 *
-	 * @param {Object} record Record to remove annotations from.
-	 * @return {Object} The cleaned record.
-	 */
-	removeAnnotations( record ) {
-		return removeFormat( record, 'core/annotation', 0, record.text.length );
-	}
-
 	componentDidUpdate( prevProps ) {
 		const { tagName, value, isSelected, annotations } = this.props;
 
@@ -855,11 +813,11 @@ export class RichText extends Component {
 			record = create();
 		}
 
-		return this.applyAnnotations( record, annotations );
+		return applyAnnotations( record, annotations );
 	}
 
 	valueToFormat( { formats, text } ) {
-		const value = this.removeAnnotations( { formats, text } );
+		const value = removeAnnotations( { formats, text } );
 
 		// Handle deprecated `children` and `node` sources.
 		if ( this.usedDeprecatedChildrenSource ) {
