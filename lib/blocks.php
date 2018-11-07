@@ -171,7 +171,7 @@ function gutenberg_render_block( $block ) {
 		return $block[ 'innerHTML' ];
 	}
 
-	$rai = new RecursiveArrayIterator( $block[ 'innerBlocks' ] );
+	$rai = new RecursiveArrayIterator( array( $block ) );
 	$rfi = new BlockRecursiveIteratorFilter( $rai );
 	$rii = new RecursiveIteratorIterator( $rfi, RecursiveIteratorIterator::CHILD_FIRST );
 	$stack = array();
@@ -209,16 +209,7 @@ function gutenberg_render_block( $block ) {
 		}
 	}
 
-	$output = '';
-	$index = 0;
-	foreach ( $block['innerContent'] as $chunk ) {
-		if ( is_string( $chunk ) ) {
-			$output .= $chunk;
-		} else {
-			$output .= $stack[ $index++ ];
-		}
-	}
-	return $output;
+	return $stack[ 0 ];
 }
 
 if ( ! function_exists( 'do_blocks' ) ) {
