@@ -3,6 +3,19 @@
 	height: $icon-button-size;
 }
 
+.components-icon-button.editor-block-switcher__no-switcher-icon {
+	width: $icon-button-size + 6px + 6px;
+	margin: 0;
+	display: block;
+	height: $icon-button-size;
+	padding: 3px;
+	opacity: 0.8;
+	.editor-block-icon {
+		margin-right: auto;
+		margin-left: auto;
+	}
+}
+
 // Style this the same as the block buttons in the library.
 // Needs specificiity to override the icon button.
 .components-icon-button.editor-block-switcher__toggle {
