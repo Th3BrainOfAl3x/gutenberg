@@ -161,17 +161,17 @@ if ( ! class_exists( 'BlockRecursiveIteratorFilter' ) ) {
  *
  * @since 1.9.0
  *
- * @param  array $top_block A single parsed block object.
+ * @param  array $block A single parsed block object.
  * @return string String of rendered HTML.
  */
-function gutenberg_render_block( $top_block ) {
+function gutenberg_render_block( $block ) {
 	global $post;
 
-	if ( empty( $top_block[ 'innerBlocks' ] ) ) {
-		return $top_block[ 'innerHTML' ];
+	if ( empty( $block[ 'innerBlocks' ] ) ) {
+		return $block[ 'innerHTML' ];
 	}
 
-	$rai = new RecursiveArrayIterator( $top_block[ 'innerBlocks' ] );
+	$rai = new RecursiveArrayIterator( $block[ 'innerBlocks' ] );
 	$rfi = new BlockRecursiveIteratorFilter( $rai );
 	$rii = new RecursiveIteratorIterator( $rfi, RecursiveIteratorIterator::CHILD_FIRST );
 	$stack = array();
@@ -211,7 +211,7 @@ function gutenberg_render_block( $top_block ) {
 
 	$output = '';
 	$index = 0;
-	foreach ( $top_block['innerContent'] as $chunk ) {
+	foreach ( $block['innerContent'] as $chunk ) {
 		if ( is_string( $chunk ) ) {
 			$output .= $chunk;
 		} else {
