@@ -457,12 +457,9 @@ export class RichText extends Component {
 			this.applyRecord( record );
 		}
 
-		// Filter out annotations
-		const filteredRecord = removeFormat( record, 'core/annotation', 0, record.text.length );
+		const { start, end } = record;
 
-		const { start, end } = filteredRecord;
-
-		this.savedContent = this.valueToFormat( filteredRecord );
+		this.savedContent = this.valueToFormat( record );
 		this.props.onChange( this.savedContent );
 		this.setState( { start, end } );
 	}
@@ -775,6 +772,16 @@ export class RichText extends Component {
 		return record;
 	}
 
+	/**
+	 * Removes annotations from the given record.
+	 *
+	 * @param {Object} record Record to remove annotations from.
+	 * @return {Object} The cleaned record.
+	 */
+	removeAnnotations( record ) {
+		return removeFormat( record, 'core/annotation', 0, record.text.length );
+	}
+
 	componentDidUpdate( prevProps ) {
 		const { tagName, value, isSelected, annotations } = this.props;
 
@@ -852,10 +859,12 @@ export class RichText extends Component {
 	}
 
 	valueToFormat( { formats, text } ) {
+		const value = this.removeAnnotations( { formats, text } );
+
 		// Handle deprecated `children` and `node` sources.
 		if ( this.usedDeprecatedChildrenSource ) {
 			return children.fromDOM( unstableToDom( {
-				value: { formats, text },
+				value: value,
 				multilineTag: this.multilineTag,
 				multilineWrapperTags: this.multilineWrapperTags,
 			} ).body.childNodes );
@@ -863,13 +872,13 @@ export class RichText extends Component {
 
 		if ( this.props.format === 'string' ) {
 			return toHTMLString( {
-				value: { formats, text },
+				value: value,
 				multilineTag: this.multilineTag,
 				multilineWrapperTags: this.multilineWrapperTags,
 			} );
 		}
 
-		return { formats, text };
+		return value;
 	}
 
 	render() {
