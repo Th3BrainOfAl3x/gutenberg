@@ -56,7 +56,10 @@ function createLinkFormat( { url, opensInNewWindow, text } ) {
 }
 
 function isShowingInput( props, state ) {
-	return props.addingLink || state.editLink;
+	const { activeAttributes: { url }, addingLink } = props;
+	const { editLink, inputValue } = state;
+
+	return addingLink || editLink || ( ! url && ! inputValue );
 }
 
 const LinkEditor = ( { value, onChangeInputValue, onKeyDown, submitLink, autocompleteRef } ) => (
@@ -109,7 +112,10 @@ class InlineLinkUI extends Component {
 		this.resetState = this.resetState.bind( this );
 		this.autocompleteRef = createRef();
 
-		this.state = {};
+		this.state = {
+			opensInNewWindow: false,
+			inputValue: '',
+		};
 	}
 
 	static getDerivedStateFromProps( props, state ) {
