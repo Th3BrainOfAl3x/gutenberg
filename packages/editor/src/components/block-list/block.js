@@ -22,7 +22,7 @@ import {
 	isUnmodifiedDefaultBlock,
 	getUnregisteredTypeHandlerName,
 } from '@wordpress/blocks';
-import { withFilters } from '@wordpress/components';
+import { KeyboardShortcuts, withFilters } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { withViewportMatch } from '@wordpress/viewport';
@@ -57,6 +57,7 @@ export class BlockListBlock extends Component {
 		this.bindBlockNode = this.bindBlockNode.bind( this );
 		this.setAttributes = this.setAttributes.bind( this );
 		this.maybeHover = this.maybeHover.bind( this );
+		this.handleAltF10KeyPress = this.handleAltF10KeyPress.bind( this );
 		this.hideHoverEffects = this.hideHoverEffects.bind( this );
 		this.mergeBlocks = this.mergeBlocks.bind( this );
 		this.insertBlocksAfter = this.insertBlocksAfter.bind( this );
@@ -76,6 +77,7 @@ export class BlockListBlock extends Component {
 			error: null,
 			dragging: false,
 			isHovered: false,
+			isHandlingAltF10: false,
 		};
 	}
 
@@ -86,6 +88,13 @@ export class BlockListBlock extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
+		if ( this.state.isHandlingAltF10 && ! this.props.isTypingWithinBlock ) {
+			// When the component updates and the user is not typing within the block
+			// we know that handling alt+f10 keypress is finished (the necessary child blocks are rendered).
+			this.setState( {
+				isHandlingAltF10: false,
+			} );
+		}
 		if ( this.props.isTypingWithinBlock || this.props.isSelected ) {
 			this.hideHoverEffects();
 		}
@@ -357,6 +366,12 @@ export class BlockListBlock extends Component {
 		}
 	}
 
+	handleAltF10KeyPress() {
+		this.setState( {
+			isHandlingAltF10: true,
+		} );
+	}
+
 	render() {
 		return (
 			<HoverArea container={ this.wrapperNode }>
@@ -403,7 +418,8 @@ export class BlockListBlock extends Component {
 					// We render block movers and block settings to keep them tabbale even if hidden
 					const shouldRenderMovers = ! isFocusMode && ( isSelected || hoverArea === 'left' ) && ! showEmptyBlockSideInserter && ! isMultiSelecting && ! isPartOfMultiSelection && ! isTypingWithinBlock;
 					const shouldShowBreadcrumb = ! isFocusMode && isHovered && ! isEmptyDefaultBlock;
-					const shouldShowContextualToolbar = ! hasFixedToolbar && ! showSideInserter && ( ( isSelected && ( ! isTypingWithinBlock || isCaretWithinFormattedText ) ) || isFirstMultiSelected );
+					const contextualSidebarMayAppear = ! hasFixedToolbar && ! showSideInserter;
+					const shouldShowContextualToolbar = contextualSidebarMayAppear && ( ( isSelected && ( ! isTypingWithinBlock || isCaretWithinFormattedText ) ) || isFirstMultiSelected );
 					const shouldShowMobileToolbar = shouldAppearSelected;
 					const { error, dragging } = this.state;
 
@@ -521,7 +537,28 @@ export class BlockListBlock extends Component {
 									isHidden={ ! ( isHovered || isSelected ) || hoverArea !== 'left' }
 								/>
 							) }
-							{ shouldShowContextualToolbar && <BlockContextualToolbar /> }
+
+							{ (
+								shouldShowContextualToolbar ||
+								// When alt + f10 key is pressed we should show the toolbar.
+								this.state.isHandlingAltF10
+							) && (
+								<BlockContextualToolbar
+									// If the toolbar is being shown because it is handling
+									// alt+f10 key press it should focus right after mounting.
+									focusOnMount={ this.state.isHandlingAltF10 }
+								/>
+							) }
+							{ ! shouldShowContextualToolbar && contextualSidebarMayAppear && isSelected && (
+								<KeyboardShortcuts
+									bindGlobal
+									// Use the same event that TinyMCE uses in the Classic block for its own `alt+f10` shortcut.
+									eventName="keydown"
+									shortcuts={ {
+										'alt+f10': this.handleAltF10KeyPress,
+									} }
+								/>
+							) }
 							{ isFirstMultiSelected && (
 								<BlockMultiControls rootClientId={ rootClientId } />
 							) }
