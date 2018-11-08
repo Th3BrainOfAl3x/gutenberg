@@ -1,6 +1,6 @@
 <?php
 /**
- * Blocks API: WP_Block_Recursive_Iterator_Filter class
+ * Blocks API: WP_Block_Tree_Iterator class
  *
  * @package gutenberg
  * @since 4.4.0
