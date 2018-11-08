@@ -148,6 +148,7 @@ if ( ! function_exists( 'get_dynamic_blocks_regex' ) ) {
  * Renders a single block into a HTML string.
  *
  * @since 1.9.0
+ * @global WP_Post $post The post to edit.
  *
  * @param  array $blocks A single parsed block object or an array thereof.
  * @return string String of rendered HTML.
@@ -197,7 +198,6 @@ if ( ! function_exists( 'do_blocks' ) ) {
 	 * Parses dynamic blocks out of `post_content` and re-renders them.
 	 *
 	 * @since 0.1.0
-	 * @global WP_Post $post The post to edit.
 	 *
 	 * @param  string $content Post content.
 	 * @return string          Updated post content.
