@@ -41,9 +41,8 @@ class WP_Block_Tree_Iterator extends RecursiveFilterIterator {
 	/**
 	 * Creates a new block tree iterator
 	 *
-	 * @param array $block_tree (coerced) array of blocks to traverse in a depth-first order
-	 *
-	 * @return RecursiveIteratorIterator iterates over the given block or blocks
+	 * @param array $block_tree (coerced) array of blocks to traverse in a depth-first order.
+	 * @return RecursiveIteratorIterator iterates over the given block or blocks.
 	 */
 	public static function create( $block_tree ) {
 		$rai = new RecursiveArrayIterator( is_array( $block_tree ) ? $block_tree : array( $block_tree ) );
