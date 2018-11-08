@@ -41,7 +41,8 @@ export class PostPublishButton extends Component {
 			forceIsDirty,
 			forceIsSaving,
 		} = this.props;
-		const isButtonEnabled = ( forceIsDirty || isPublishable ) &&
+		const isButtonEnabled = ( ! isSaving && ! forceIsSaving ) &&
+			( forceIsDirty || isPublishable ) &&
 			( isSaveable && ! isPostSavingLocked );
 
 		let publishStatus;
