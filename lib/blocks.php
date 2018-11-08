@@ -182,7 +182,7 @@ function gutenberg_render_block( $block ) {
 			$inner_blocks = array_splice( $stack, -1 * count( $inner_block['innerBlocks'] ) );
 
 			$output = '';
-			$index = 0;
+			$index  = 0;
 			foreach ( $inner_block['innerContent'] as $chunk ) {
 				if ( is_string( $chunk ) ) {
 					$output .= $chunk;
