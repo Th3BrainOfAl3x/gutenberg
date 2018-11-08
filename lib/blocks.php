@@ -150,47 +150,36 @@ if ( ! function_exists( 'get_dynamic_blocks_regex' ) ) {
  * @since 1.9.0
  * @global WP_Post $post The post to edit.
  *
- * @param  array $blocks A single parsed block object or an array thereof.
+ * @param  array $block A single parsed block object.
  * @return string String of rendered HTML.
  */
-function gutenberg_render_block( $blocks ) {
+function gutenberg_render_block( $block ) {
 	global $post;
 
-	$tree  = WP_Block_Tree_Iterator::create( $blocks );
-	$stack = array();
+	$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $block['blockName'] );
+	$is_dynamic = $block['blockName'] && null !== $block_type && $block_type->is_dynamic();
+	$has_blocks = ! empty( $block['innerBlocks'] );
 
-	foreach ( $tree as $block ) {
-		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $block['blockName'] );
-		$is_dynamic = $block['blockName'] && null !== $block_type && $block_type->is_dynamic();
-		$has_blocks = ! empty( $block['innerBlocks'] );
+	if ( $is_dynamic ) {
+		$attributes  = is_array( $block['attrs'] ) ? (array) $block['attrs'] : array();
+		$global_post = $post;
+		$output      = $block_type->render( $attributes, $block['innerHTML'] );
+		$post        = $global_post;
 
-		if ( $is_dynamic ) {
-			$attributes  = is_array( $block['attrs'] ) ? $block['attrs'] : array();
-			$global_post = $post;
-			$stack[]     = $block_type->render( $attributes, $block['innerHTML'] );
-			$post        = $global_post;
-
-			continue;
-		}
-
-		if ( ! $has_blocks ) {
-			$stack[] = $block['innerHTML'];
-
-			continue;
-		}
-
-		$inner_blocks = array_splice( $stack, - 1 * count( $block['innerBlocks'] ) );
-
-		$output = '';
-		$index  = 0;
-		foreach ( $block['innerContent'] as $chunk ) {
-			$output .= is_string( $chunk ) ? $chunk : $inner_blocks[ $index++ ];
-		}
-
-		$stack[] = $output;
+		return $output;
 	}
 
-	return implode( '', $stack );
+	if ( ! $has_blocks ) {
+		return $block['innerHTML'];
+	}
+
+	$output = '';
+	$index  = 0;
+	foreach ( $block['innerContent'] as $chunk ) {
+		$output .= is_string( $chunk ) ? $chunk : gutenberg_render_block( $block['innerBlocks'][ $index++ ] );
+	}
+
+	return $output;
 }
 
 if ( ! function_exists( 'do_blocks' ) ) {
@@ -204,8 +193,13 @@ if ( ! function_exists( 'do_blocks' ) ) {
 	 */
 	function do_blocks( $content ) {
 		$blocks = gutenberg_parse_blocks( $content );
+		$output = '';
 
-		return gutenberg_render_block( $blocks );
+		foreach( $blocks as $block ) {
+			$output .= gutenberg_render_block( $block );
+		}
+
+		return $output;
 	}
 
 	add_filter( 'the_content', 'do_blocks', 7 ); // BEFORE do_shortcode() and oembed.

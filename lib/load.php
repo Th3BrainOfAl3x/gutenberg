@@ -38,9 +38,6 @@ if ( class_exists( 'WP_REST_Controller' ) ) {
 }
 
 require dirname( __FILE__ ) . '/meta-box-partial-page.php';
-if ( ! class_exists( 'WP_Block_Recursive_Iterator_Filter' ) ) {
-	require dirname( __FILE__ ) . '/class-wp-block-tree-iterator.php';
-}
 if ( ! class_exists( 'WP_Block_Type' ) ) {
 	require dirname( __FILE__ ) . '/class-wp-block-type.php';
 }
