@@ -14,14 +14,14 @@
 class WP_Block_Tree_Iterator extends RecursiveFilterIterator {
 	/**
 	 * Determines if the current item is eligible for iteration
-	 * Eligibility is based on whether the item is an array of blocks
+	 * Eligibility is based on whether the item is a non-whitespace-only block
 	 *
 	 * @return bool whether we can iterate over this item
 	 */
 	public function accept() {
 		$this_block = $this->current();
 
-		return is_array( $this_block );
+		return is_array( $this_block ) && 0 === preg_match( '/^[\r\n]+$/', $this_block['innerHTML'] );
 	}
 
 	/**
