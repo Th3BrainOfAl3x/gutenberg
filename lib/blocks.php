@@ -144,18 +144,6 @@ if ( ! function_exists( 'get_dynamic_blocks_regex' ) ) {
 	}
 }
 
-if ( ! class_exists( 'BlockRecursiveIteratorFilter' ) ) {
-	class BlockRecursiveIteratorFilter extends RecursiveFilterIterator {
-		public function accept() {
-			return is_array( $this->current() );
-		}
-
-		public function getChildren() {
-			return new self( new RecursiveArrayIterator( $this->current()['innerBlocks'] ) );
-		}
-	}
-}
-
 /**
  * Renders a single block into a HTML string.
  *
@@ -167,24 +155,24 @@ if ( ! class_exists( 'BlockRecursiveIteratorFilter' ) ) {
 function gutenberg_render_block( $block ) {
 	global $post;
 
-	if ( empty( $block[ 'innerBlocks' ] ) ) {
-		return $block[ 'innerHTML' ];
+	if ( empty( $block['innerBlocks'] ) ) {
+		return $block['innerHTML'];
 	}
 
-	$rai = new RecursiveArrayIterator( array( $block ) );
-	$rfi = new BlockRecursiveIteratorFilter( $rai );
-	$rii = new RecursiveIteratorIterator( $rfi, RecursiveIteratorIterator::CHILD_FIRST );
+	$rai   = new RecursiveArrayIterator( array( $block ) );
+	$rfi   = new WP_Block_Recursive_Iterator_Filter( $rai );
+	$rii   = new RecursiveIteratorIterator( $rfi, RecursiveIteratorIterator::CHILD_FIRST );
 	$stack = array();
 
 	foreach ( $rii as $inner_block ) {
 		$attributes = is_array( $inner_block['attrs'] ) ? $inner_block['attrs'] : array();
 
-		if ( $inner_block[ 'blockName' ] ) {
-			$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $inner_block[ 'blockName' ] );
+		if ( $inner_block['blockName'] ) {
+			$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $inner_block['blockName'] );
 			if ( null !== $block_type && $block_type->is_dynamic() ) {
 				$global_post = $post;
-				$stack[] = $block_type->render( $attributes );
-				$post = $global_post;
+				$stack[]     = $block_type->render( $attributes );
+				$post        = $global_post;
 
 				continue;
 			}
@@ -195,7 +183,7 @@ function gutenberg_render_block( $block ) {
 
 			$output = '';
 			$index = 0;
-			foreach ( $inner_block[ 'innerContent' ] as $chunk ) {
+			foreach ( $inner_block['innerContent'] as $chunk ) {
 				if ( is_string( $chunk ) ) {
 					$output .= $chunk;
 				} else {
@@ -209,7 +197,7 @@ function gutenberg_render_block( $block ) {
 		}
 	}
 
-	return $stack[ 0 ];
+	return $stack[0];
 }
 
 if ( ! function_exists( 'do_blocks' ) ) {
