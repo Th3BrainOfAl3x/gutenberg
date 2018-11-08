@@ -46,9 +46,9 @@ class WP_Block_Tree_Iterator extends RecursiveFilterIterator {
 	 * @return RecursiveIteratorIterator iterates over the given block or blocks
 	 */
 	public static function create( $block_tree ) {
-		$rai    = new RecursiveArrayIterator( is_array( $block_tree ) ? $block_tree : array( $block_tree ) );
-		$rfi    = new WP_Block_Tree_Iterator( $rai );
-		$rii    = new RecursiveIteratorIterator( $rfi, RecursiveIteratorIterator::CHILD_FIRST );
+		$rai = new RecursiveArrayIterator( is_array( $block_tree ) ? $block_tree : array( $block_tree ) );
+		$rfi = new WP_Block_Tree_Iterator( $rai );
+		$rii = new RecursiveIteratorIterator( $rfi, RecursiveIteratorIterator::CHILD_FIRST );
 
 		return $rii;
 	}
