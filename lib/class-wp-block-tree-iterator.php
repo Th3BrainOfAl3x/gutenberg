@@ -11,7 +11,7 @@
  *
  * @since 4.4.0
  */
-class WP_Block_Recursive_Iterator_Filter extends RecursiveFilterIterator {
+class WP_Block_Tree_Iterator extends RecursiveFilterIterator {
 	/**
 	 * Determines if the current item is eligible for iteration
 	 * Eligibility is based on whether the item is an array of blocks
@@ -28,7 +28,7 @@ class WP_Block_Recursive_Iterator_Filter extends RecursiveFilterIterator {
 	 * Returns the children needed to continue iteration.
 	 * Returns a block's inner blocks.
 	 *
-	 * @return WP_Block_Recursive_Iterator_Filter iterates over a block's inner blocks
+	 * @return WP_Block_Tree_Iterator iterates over a block's inner blocks
 	 */
 	public function getChildren() {
 		$this_block   = $this->current();
@@ -36,5 +36,13 @@ class WP_Block_Recursive_Iterator_Filter extends RecursiveFilterIterator {
 		$rai          = new RecursiveArrayIterator( $inner_blocks );
 
 		return new self( $rai );
+	}
+
+	public static function create( $block_tree ) {
+		$rai    = new RecursiveArrayIterator( is_array( $block_tree ) ? $block_tree : array( $block_tree ) );
+		$rfi    = new WP_Block_Tree_Iterator( $rai );
+		$rii    = new RecursiveIteratorIterator( $rfi, RecursiveIteratorIterator::CHILD_FIRST );
+
+		return $rii;
 	}
 }

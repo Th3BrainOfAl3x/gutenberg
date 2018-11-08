@@ -149,55 +149,47 @@ if ( ! function_exists( 'get_dynamic_blocks_regex' ) ) {
  *
  * @since 1.9.0
  *
- * @param  array $block A single parsed block object.
+ * @param  array $blocks A single parsed block object or an array thereof.
  * @return string String of rendered HTML.
  */
-function gutenberg_render_block( $block ) {
+function gutenberg_render_block( $blocks ) {
 	global $post;
 
-	if ( empty( $block['innerBlocks'] ) ) {
-		return $block['innerHTML'];
-	}
-
-	$rai   = new RecursiveArrayIterator( array( $block ) );
-	$rfi   = new WP_Block_Recursive_Iterator_Filter( $rai );
-	$rii   = new RecursiveIteratorIterator( $rfi, RecursiveIteratorIterator::CHILD_FIRST );
+	$tree  = WP_Block_Tree_Iterator::create( $blocks );
 	$stack = array();
 
-	foreach ( $rii as $inner_block ) {
-		$attributes = is_array( $inner_block['attrs'] ) ? $inner_block['attrs'] : array();
+	foreach ( $tree as $block ) {
+		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $block['blockName'] );
+		$is_dynamic = $block['blockName'] && null !== $block_type && $block_type->is_dynamic();
+		$has_blocks = ! empty( $block['innerBlocks'] );
 
-		if ( $inner_block['blockName'] ) {
-			$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $inner_block['blockName'] );
-			if ( null !== $block_type && $block_type->is_dynamic() ) {
-				$global_post = $post;
-				$stack[]     = $block_type->render( $attributes );
-				$post        = $global_post;
+		if ( $is_dynamic ) {
+			$attributes  = is_array( $block['attrs'] ) ? $block['attrs'] : array();
+			$global_post = $post;
+			$stack[]     = $block_type->render( $attributes );
+			$post        = $global_post;
 
-				continue;
-			}
+			continue;
 		}
 
-		if ( ! empty( $inner_block['innerBlocks'] ) ) {
-			$inner_blocks = array_splice( $stack, -1 * count( $inner_block['innerBlocks'] ) );
+		if ( ! $has_blocks ) {
+			$stack[] = $block['innerHTML'];
 
-			$output = '';
-			$index  = 0;
-			foreach ( $inner_block['innerContent'] as $chunk ) {
-				if ( is_string( $chunk ) ) {
-					$output .= $chunk;
-				} else {
-					$output .= $inner_blocks[ $index++ ];
-				}
-			}
-
-			$stack[] = $output;
-		} else {
-			$stack[] = $inner_block['innerHTML'];
+			continue;
 		}
+
+		$inner_blocks = array_splice( $stack, - 1 * count( $block['innerBlocks'] ) );
+
+		$output = '';
+		$index  = 0;
+		foreach ( $block['innerContent'] as $chunk ) {
+			$output .= is_string( $chunk ) ? $chunk : $inner_blocks[ $index++ ];
+		}
+
+		$stack[] = $output;
 	}
 
-	return $stack[0];
+	return implode( '', $stack );
 }
 
 if ( ! function_exists( 'do_blocks' ) ) {
@@ -213,7 +205,7 @@ if ( ! function_exists( 'do_blocks' ) ) {
 	function do_blocks( $content ) {
 		$blocks = gutenberg_parse_blocks( $content );
 
-		return implode( '', array_map( 'gutenberg_render_block', $blocks ) );
+		return gutenberg_render_block( $blocks );
 	}
 
 	add_filter( 'the_content', 'do_blocks', 7 ); // BEFORE do_shortcode() and oembed.
